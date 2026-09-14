@@ -45,7 +45,13 @@
       <span id="outHeight" class="hint"></span>
     </div>
 
-    <button id="downloadBtn" type="button" disabled>Download DXF</button>
+    <div class="control-row download-row">
+      <select id="format">
+        <option value="dxf" selected>DXF</option>
+        <option value="svg">SVG</option>
+      </select>
+      <button id="downloadBtn" type="button" disabled>Download DXF</button>
+    </div>
     <span id="pathInfo" class="hint"></span>
   </section>
 

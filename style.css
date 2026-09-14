@@ -151,7 +151,17 @@ button:disabled { opacity: 0.4; cursor: default; }
   color: #111;
 }
 
-#downloadBtn { width: 100%; margin-top: 0.25rem; }
+.download-row { margin-top: 0.25rem; margin-bottom: 0; }
+.download-row #downloadBtn { flex: 1; }
+.download-row select {
+  padding: 0.7rem 0.5rem;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  color: #111;
+  flex: 0 0 5rem;
+}
 
 .preview-wrap {
   display: grid;

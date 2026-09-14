@@ -17,6 +17,7 @@
   var outWidthEl = document.getElementById('outWidth');
   var unitEl = document.getElementById('unit');
   var outHeightEl = document.getElementById('outHeight');
+  var formatEl = document.getElementById('format');
   var downloadBtn = document.getElementById('downloadBtn');
   var pathInfo = document.getElementById('pathInfo');
   var srcCanvas = document.getElementById('srcCanvas');
@@ -42,7 +43,8 @@
   [outWidthEl, unitEl].forEach(function (el) {
     el.addEventListener('input', updateOutputSize);
   });
-  downloadBtn.addEventListener('click', exportDXF);
+  formatEl.addEventListener('change', updateDownloadLabel);
+  downloadBtn.addEventListener('click', exportFile);
 
   function loadFile(file) {
     fileName.textContent = file.name;
@@ -176,8 +178,21 @@
     return workH / workW;
   }
 
-  function exportDXF() {
+  function updateDownloadLabel() {
+    downloadBtn.textContent = 'Download ' + formatEl.value.toUpperCase();
+  }
+
+  function exportFile() {
     if (!latestPaths || !latestPaths.paths.length) return;
+    var base = fileName.textContent.replace(/\.[^.]+$/, '') || 'trace';
+    if (formatEl.value === 'svg') {
+      downloadBlob(buildSVG(), base + '.svg');
+    } else {
+      downloadBlob(buildDXF(), base + '.dxf');
+    }
+  }
+
+  function buildDXF() {
     var outWidth = parseFloat(outWidthEl.value) || latestPaths.width;
     var scale = outWidth / latestPaths.width;
     var h = latestPaths.height;
@@ -202,11 +217,39 @@
 
     lines.push('0', 'ENDSEC', '0', 'EOF');
 
-    var blob = new Blob([lines.join('\n') + '\n'], { type: 'application/dxf' });
+    return new Blob([lines.join('\n') + '\n'], { type: 'application/dxf' });
+  }
+
+  function buildSVG() {
+    var outWidth = parseFloat(outWidthEl.value) || latestPaths.width;
+    var scale = outWidth / latestPaths.width;
+    var h = (latestPaths.height * scale).toFixed(4);
+    var w = outWidth.toFixed(4);
+    var unit = unitEl.value;
+
+    var d = latestPaths.paths.map(function (pts) {
+      if (pts.length < 2) return '';
+      var cmd = 'M ' + (pts[0].x * scale).toFixed(4) + ' ' + (pts[0].y * scale).toFixed(4) + ' ';
+      for (var i = 1; i < pts.length; i++) {
+        cmd += 'L ' + (pts[i].x * scale).toFixed(4) + ' ' + (pts[i].y * scale).toFixed(4) + ' ';
+      }
+      return cmd + 'Z';
+    }).join(' ');
+
+    var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + unit + '" height="' + h + unit +
+      '" viewBox="0 0 ' + w + ' ' + h + '">\n' +
+      '  <path d="' + d + '" fill="#000000" fill-rule="evenodd" stroke="none" />\n' +
+      '</svg>\n';
+
+    return new Blob([svg], { type: 'image/svg+xml' });
+  }
+
+  function downloadBlob(blob, filename) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = (fileName.textContent.replace(/\.[^.]+$/, '') || 'trace') + '.dxf';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
