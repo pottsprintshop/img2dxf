@@ -139,6 +139,29 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 .checkbox-row input[type="checkbox"] { accent-color: var(--accent); }
 
+.nerd-menu { margin-bottom: 0.9rem; }
+.nerd-menu summary {
+  cursor: pointer;
+  font-family: "LemonMilk", -apple-system, sans-serif;
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  padding: 0.3rem 0;
+  user-select: none;
+  list-style: none;
+}
+.nerd-menu summary::-webkit-details-marker { display: none; }
+.nerd-menu summary::marker { content: ""; }
+.nerd-menu summary::before {
+  content: "\25B8";
+  display: inline-block;
+  width: 1em;
+  transition: transform 0.15s ease;
+}
+.nerd-menu[open] summary::before { transform: rotate(90deg); }
+.nerd-menu .checkbox-row { margin: 0.6rem 0 0; }
+
 .size-row input[type="number"] {
   width: 5.5rem;
   padding: 0.4rem;

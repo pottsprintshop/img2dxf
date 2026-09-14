@@ -9,7 +9,7 @@
 <body>
 <header>
   <h1>img2cad</h1>
-  <p class="sub">Trace a picture into cut/engrave lines and export a DXF file.</p>
+  <p class="sub">Trace a picture into cut/engrave lines and export a DXF or SVG file.</p>
 </header>
 
 <main>
@@ -30,10 +30,13 @@
       <input type="range" id="simplify" min="0" max="10" value="7">
     </div>
 
-    <div class="control-row checkbox-row">
-      <label><input type="checkbox" id="invert"> Invert (trace light areas)</label>
-      <label><input type="checkbox" id="rightAngle" checked> Sharpen corners</label>
-    </div>
+    <details class="nerd-menu">
+      <summary>Nerd Shite</summary>
+      <div class="control-row checkbox-row">
+        <label><input type="checkbox" id="invert"> Invert (trace light areas)</label>
+        <label><input type="checkbox" id="rightAngle" checked> Sharpen corners</label>
+      </div>
+    </details>
 
     <div class="control-row size-row">
       <label for="outWidth">Output width</label>
