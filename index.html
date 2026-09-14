@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Image to DXF</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Image &rarr; DXF</h1>
+  <p class="sub">Trace a picture into cut/engrave lines and export a DXF file.</p>
+</header>
+
+<main>
+  <section id="dropzone" class="panel">
+    <input type="file" id="fileInput" accept="image/*" hidden>
+    <button id="chooseBtn" type="button">Choose Image</button>
+    <span id="fileName" class="hint">No image selected</span>
+  </section>
+
+  <section class="panel" id="controls" hidden>
+    <div class="control-row">
+      <label for="threshold">Threshold <span id="thresholdVal"></span></label>
+      <input type="range" id="threshold" min="1" max="254" value="128">
+    </div>
+
+    <div class="control-row">
+      <label for="simplify">Detail <span id="simplifyVal"></span></label>
+      <input type="range" id="simplify" min="0" max="10" value="3">
+    </div>
+
+    <div class="control-row checkbox-row">
+      <label><input type="checkbox" id="invert"> Invert (trace light areas)</label>
+      <label><input type="checkbox" id="rightAngle" checked> Sharpen corners</label>
+    </div>
+
+    <div class="control-row size-row">
+      <label for="outWidth">Output width</label>
+      <input type="number" id="outWidth" min="0.1" step="0.1" value="100">
+      <select id="unit">
+        <option value="mm" selected>mm</option>
+        <option value="in">in</option>
+      </select>
+      <span id="outHeight" class="hint"></span>
+    </div>
+
+    <button id="downloadBtn" type="button" disabled>Download DXF</button>
+    <span id="pathInfo" class="hint"></span>
+  </section>
+
+  <section class="preview-wrap">
+    <div class="preview-box">
+      <h2>Original</h2>
+      <canvas id="srcCanvas"></canvas>
+    </div>
+    <div class="preview-box">
+      <h2>Traced preview</h2>
+      <canvas id="traceCanvas"></canvas>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Everything runs in your browser &mdash; no image is uploaded anywhere.</p>
+</footer>
+
+<script src="vendor/imagetracer.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
