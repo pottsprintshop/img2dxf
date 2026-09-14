@@ -14,6 +14,8 @@
   var simplifyVal = document.getElementById('simplifyVal');
   var invertEl = document.getElementById('invert');
   var rightAngleEl = document.getElementById('rightAngle');
+  var lineFilterEl = document.getElementById('lineFilter');
+  var denoiseEl = document.getElementById('denoise');
   var outWidthEl = document.getElementById('outWidth');
   var unitEl = document.getElementById('unit');
   var outHeightEl = document.getElementById('outHeight');
@@ -40,7 +42,7 @@
     if (f) loadFile(f);
   });
 
-  [thresholdEl, simplifyEl, invertEl, rightAngleEl].forEach(function (el) {
+  [thresholdEl, simplifyEl, invertEl, rightAngleEl, lineFilterEl, denoiseEl].forEach(function (el) {
     el.addEventListener('input', scheduleRetrace);
   });
   unitEl.addEventListener('input', updateOutputSize);
@@ -123,6 +125,7 @@
       d[i] = d[i + 1] = d[i + 2] = v;
       d[i + 3] = 255;
     }
+    if (denoiseEl.checked) despeckle(imgd, workW, workH);
     wctx.putImageData(imgd, 0, 0);
 
     var detail = parseInt(simplifyEl.value, 10); // 0..10, higher = more detail
@@ -166,13 +169,74 @@
           pts.push({ x: seg.x2, y: seg.y2 });
         }
       });
-      paths.push(pts);
+      paths.push(lineFilterEl.checked ? chaikinSmooth(pts, 2) : pts);
     });
 
     latestPaths = { paths: paths, width: tracedata.width, height: tracedata.height };
     drawPreview(latestPaths);
     downloadBtn.disabled = paths.length === 0;
     pathInfo.textContent = paths.length + (paths.length === 1 ? ' shape traced' : ' shapes traced');
+  }
+
+  // Morphological opening (erode then dilate over a 3x3 neighborhood) to drop
+  // isolated speckle pixels from the binarized bitmap before tracing.
+  function despeckle(imgd, w, h) {
+    var d = imgd.data;
+    function isFg(x, y) {
+      if (x < 0 || y < 0 || x >= w || y >= h) return false;
+      return d[(y * w + x) * 4] === 0;
+    }
+    var eroded = new Uint8Array(w * h);
+    for (var y = 0; y < h; y++) {
+      for (var x = 0; x < w; x++) {
+        if (!isFg(x, y)) continue;
+        var keep = true;
+        for (var dy = -1; dy <= 1 && keep; dy++) {
+          for (var dx = -1; dx <= 1; dx++) {
+            if (!isFg(x + dx, y + dy)) { keep = false; break; }
+          }
+        }
+        if (keep) eroded[y * w + x] = 1;
+      }
+    }
+    function erFg(x, y) {
+      if (x < 0 || y < 0 || x >= w || y >= h) return false;
+      return eroded[y * w + x] === 1;
+    }
+    for (var y2 = 0; y2 < h; y2++) {
+      for (var x2 = 0; x2 < w; x2++) {
+        var any = false;
+        for (var dy2 = -1; dy2 <= 1 && !any; dy2++) {
+          for (var dx2 = -1; dx2 <= 1; dx2++) {
+            if (erFg(x2 + dx2, y2 + dy2)) { any = true; break; }
+          }
+        }
+        var idx = (y2 * w + x2) * 4;
+        var v = any ? 0 : 255;
+        d[idx] = d[idx + 1] = d[idx + 2] = v;
+        d[idx + 3] = 255;
+      }
+    }
+  }
+
+  // Chaikin corner-cutting: rounds jagged pixel-trace edges into smoother lines.
+  function chaikinSmooth(pts, iterations) {
+    if (pts.length > 1) {
+      var first = pts[0], last = pts[pts.length - 1];
+      if (Math.abs(first.x - last.x) < 0.01 && Math.abs(first.y - last.y) < 0.01) pts = pts.slice(0, -1);
+    }
+    for (var it = 0; it < iterations; it++) {
+      var out = [];
+      var n = pts.length;
+      for (var i = 0; i < n; i++) {
+        var p0 = pts[i], p1 = pts[(i + 1) % n];
+        out.push({ x: 0.75 * p0.x + 0.25 * p1.x, y: 0.75 * p0.y + 0.25 * p1.y });
+        out.push({ x: 0.25 * p0.x + 0.75 * p1.x, y: 0.25 * p0.y + 0.75 * p1.y });
+      }
+      pts = out;
+    }
+    pts.push(pts[0]);
+    return pts;
   }
 
   function drawPreview(data) {
