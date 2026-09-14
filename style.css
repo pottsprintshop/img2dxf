@@ -161,6 +161,43 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 .nerd-menu[open] summary::before { transform: rotate(90deg); }
 .nerd-menu .checkbox-row { margin: 0.6rem 0 0; }
+.nerd-menu .scale-row {
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0.9rem 0 0;
+}
+.nerd-menu .scale-row label {
+  min-width: auto;
+  margin-bottom: 0.3rem;
+}
+.nerd-menu .size-row label { min-width: auto; }
+
+.scale-buttons {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.scale-btn {
+  flex: 1 1 4.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.45rem 0.5rem;
+  font-family: "LemonMilk", -apple-system, sans-serif;
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+.scale-btn.active {
+  background: var(--accent);
+  color: #04283f;
+  border-color: var(--accent);
+}
+
+.nerd-menu .size-row {
+  flex-wrap: wrap;
+  margin: 0.9rem 0 0;
+}
 
 .size-row input[type="number"] {
   width: 5.5rem;

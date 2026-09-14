@@ -17,6 +17,8 @@
   var outWidthEl = document.getElementById('outWidth');
   var unitEl = document.getElementById('unit');
   var outHeightEl = document.getElementById('outHeight');
+  var scaleBtns = document.querySelectorAll('.scale-btn');
+  var otherBtn = document.getElementById('otherBtn');
   var formatEl = document.getElementById('format');
   var downloadBtn = document.getElementById('downloadBtn');
   var pathInfo = document.getElementById('pathInfo');
@@ -28,6 +30,7 @@
 
   var workImg = null;      // HTMLImageElement
   var workW = 0, workH = 0;
+  var uploadedW = 0;       // original uploaded pixel width, independent of internal downscale
   var latestPaths = null;  // array of {points:[{x,y},...]} in pixel space, ready for DXF/preview
   var retraceTimer = null;
 
@@ -40,11 +43,29 @@
   [thresholdEl, simplifyEl, invertEl, rightAngleEl].forEach(function (el) {
     el.addEventListener('input', scheduleRetrace);
   });
-  [outWidthEl, unitEl].forEach(function (el) {
-    el.addEventListener('input', updateOutputSize);
+  unitEl.addEventListener('input', updateOutputSize);
+  outWidthEl.addEventListener('input', function () {
+    setActiveScaleBtn(otherBtn);
+    updateOutputSize();
+  });
+  scaleBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setActiveScaleBtn(btn);
+      if (btn.dataset.mult) {
+        outWidthEl.value = Math.round(uploadedW * parseFloat(btn.dataset.mult));
+        updateOutputSize();
+      } else {
+        outWidthEl.focus();
+        outWidthEl.select();
+      }
+    });
   });
   formatEl.addEventListener('change', updateDownloadLabel);
   downloadBtn.addEventListener('click', exportFile);
+
+  function setActiveScaleBtn(btn) {
+    scaleBtns.forEach(function (b) { b.classList.toggle('active', b === btn); });
+  }
 
   function loadFile(file) {
     fileName.textContent = file.name;
@@ -55,11 +76,14 @@
       var scale = Math.min(1, MAX_DIM / Math.max(img.naturalWidth, img.naturalHeight));
       workW = Math.max(1, Math.round(img.naturalWidth * scale));
       workH = Math.max(1, Math.round(img.naturalHeight * scale));
+      uploadedW = img.naturalWidth;
       workImg = img;
       controls.hidden = false;
       srcCanvas.width = workW; srcCanvas.height = workH;
       traceCanvas.width = workW; traceCanvas.height = workH;
       srcCtx.drawImage(img, 0, 0, workW, workH);
+      outWidthEl.value = uploadedW;
+      setActiveScaleBtn(document.querySelector('.scale-btn[data-mult="1"]'));
       updateOutputSize();
       scheduleRetrace();
     };

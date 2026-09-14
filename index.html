@@ -36,17 +36,27 @@
         <label><input type="checkbox" id="invert"> Invert (trace light areas)</label>
         <label><input type="checkbox" id="rightAngle" checked> Sharpen corners</label>
       </div>
-    </details>
 
-    <div class="control-row size-row">
-      <label for="outWidth">Output width</label>
-      <input type="number" id="outWidth" min="0.1" step="0.1" value="100">
-      <select id="unit">
-        <option value="mm" selected>mm</option>
-        <option value="in">in</option>
-      </select>
-      <span id="outHeight" class="hint"></span>
-    </div>
+      <div class="control-row scale-row">
+        <label>Size</label>
+        <div class="scale-buttons">
+          <button type="button" class="scale-btn" data-mult="0.5">50%</button>
+          <button type="button" class="scale-btn active" data-mult="1">100%</button>
+          <button type="button" class="scale-btn" data-mult="2">200%</button>
+          <button type="button" class="scale-btn" id="otherBtn">Other</button>
+        </div>
+      </div>
+
+      <div class="control-row size-row">
+        <label for="outWidth">Output width</label>
+        <input type="number" id="outWidth" min="0.1" step="0.1" value="100">
+        <select id="unit">
+          <option value="mm" selected>mm</option>
+          <option value="in">in</option>
+        </select>
+        <span id="outHeight" class="hint"></span>
+      </div>
+    </details>
 
     <div class="control-row download-row">
       <select id="format">
