@@ -101,9 +101,9 @@
     }
     wctx.putImageData(imgd, 0, 0);
 
-    var simplify = parseInt(simplifyEl.value, 10); // 0..10
-    var pathomit = Math.round(2 + (simplify / 10) * 58);
-    var tol = 0.2 + (simplify / 10) * 4.8;
+    var detail = parseInt(simplifyEl.value, 10); // 0..10, higher = more detail
+    var pathomit = Math.round(60 - (detail / 10) * 58);
+    var tol = 5.0 - (detail / 10) * 4.8;
 
     var options = {
       numberofcolors: 2,
